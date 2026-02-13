@@ -14,13 +14,18 @@ export function ChatPage() {
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [isLoadingConversations, setIsLoadingConversations] = useState(true);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [backendUnreachable, setBackendUnreachable] = useState(false);
 
   const fetchConversations = useCallback(async () => {
     setIsLoadingConversations(true);
+    setBackendUnreachable(false);
     try {
       const res = await api.listConversations();
       setConversations(res.conversations);
     } catch (err) {
+      const isNetworkError =
+        err instanceof TypeError && err.message === 'Failed to fetch';
+      if (isNetworkError) setBackendUnreachable(true);
       handleApiError(err);
     } finally {
       setIsLoadingConversations(false);
@@ -81,6 +86,17 @@ export function ChatPage() {
   return (
     <div className="flex h-screen flex-col">
       <Header />
+      {backendUnreachable && (
+        <div
+          className="shrink-0 bg-amber-100 px-4 py-2 text-center text-sm text-amber-900"
+          role="alert"
+        >
+          API server not running. Start the backend at the URL in{' '}
+          <code className="rounded bg-amber-200 px-1">VITE_API_URL</code> (e.g.{' '}
+          <code className="rounded bg-amber-200 px-1">http://localhost:8000</code>
+          ). See README.
+        </div>
+      )}
       <div className="relative flex flex-1 overflow-hidden">
         {/* Mobile sidebar overlay */}
         {sidebarOpen && (

@@ -36,8 +36,12 @@ export function handleApiError(
     }
   }
 
+  // Connection refused, no backend, or other network failure
   if (error instanceof TypeError && error.message === 'Failed to fetch') {
-    toast.error('Network error. Please check your connection and try again.');
+    toast.error(
+      'Cannot reach the API server. Start the backend (see README) or set VITE_API_URL to your API base URL (e.g. http://localhost:8000).',
+      { duration: 8000 }
+    );
     return true;
   }
 

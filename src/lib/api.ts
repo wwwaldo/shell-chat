@@ -1,9 +1,12 @@
 import { auth } from './firebase';
 import type { Conversation, Message, Settings } from './types';
 import { ApiError } from './types';
+import { mockApi } from './mockApi';
 
 export { ApiError };
 export type { Conversation, Message, Settings };
+
+const useMockChat = import.meta.env.VITE_MOCK_CHAT === 'true';
 
 const API_URL = (import.meta.env.VITE_API_URL as string).replace(/\/$/, '');
 
@@ -42,7 +45,7 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
   return response.json();
 }
 
-export const api = {
+const realApi = {
   getSettings: () =>
     request<Settings>('/settings'),
 
@@ -75,3 +78,6 @@ export const api = {
   deleteConversation: (conversationId: string) =>
     request<void>(`/conversations/${conversationId}`, { method: 'DELETE' }),
 };
+
+/** Uses real backend unless VITE_MOCK_CHAT=true (in-memory conversations + random stock assistant replies). */
+export const api = useMockChat ? mockApi : realApi;
