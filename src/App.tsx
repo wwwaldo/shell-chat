@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import { AuthGuard } from '@/components/AuthGuard';
 import { ChatPage } from '@/pages/ChatPage';
+import { JsonChatViewerPage } from '@/pages/JsonChatViewerPage';
 import { LoginPage } from '@/pages/LoginPage';
 import { NotFoundPage } from '@/pages/NotFoundPage';
 import { SettingsPage } from '@/pages/SettingsPage';
@@ -16,6 +17,7 @@ export default function App() {
       <Toaster position="top-right" />
       <Routes>
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/json-viewer" element={<JsonChatViewerPage />} />
         <Route
           path="/"
           element={

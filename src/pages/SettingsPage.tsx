@@ -1,7 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import { Header } from '@/components/Header';
-import { ApiKeyForm } from '@/components/ApiKeyForm';
 
 export function SettingsPage() {
   const { user, signOut } = useAuth();
@@ -17,13 +16,6 @@ export function SettingsPage() {
       <Header />
       <main className="max-w-2xl mx-auto px-4 py-8 flex-1">
         <h1 className="text-2xl font-bold text-gray-900 mb-8">Settings</h1>
-
-        <section className="mb-8">
-          <h2 className="text-lg font-semibold text-gray-900 mb-3">API Key</h2>
-          <div className="bg-white rounded-lg border border-gray-200 p-4">
-            <ApiKeyForm />
-          </div>
-        </section>
 
         <section>
           <h2 className="text-lg font-semibold text-gray-900 mb-3">Account</h2>

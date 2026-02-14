@@ -6,6 +6,7 @@ interface ConversationListProps {
   conversations: Conversation[];
   activeConversationId: string | null;
   isLoading: boolean;
+  isCreatingNew?: boolean;
   onNewChat: () => void;
   onDelete: (id: string) => void;
   onSidebarClose?: () => void;
@@ -15,6 +16,7 @@ export function ConversationList({
   conversations,
   activeConversationId: _activeConversationId,
   isLoading,
+  isCreatingNew = false,
   onNewChat,
   onDelete,
   onSidebarClose,
@@ -32,12 +34,13 @@ export function ConversationList({
             onNewChat();
             onSidebarClose?.();
           }}
-          className="flex w-full items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-blue-700"
+          disabled={isCreatingNew}
+          className="flex w-full items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="h-4 w-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
           </svg>
-          New Chat
+          {isCreatingNew ? 'Creating...' : 'New Chat'}
         </button>
       </div>
       <div className="flex-1 overflow-y-auto p-2">

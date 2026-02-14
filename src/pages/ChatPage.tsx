@@ -13,6 +13,7 @@ export function ChatPage() {
   const navigate = useNavigate();
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [isLoadingConversations, setIsLoadingConversations] = useState(true);
+  const [isCreatingConversation, setIsCreatingConversation] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [backendUnreachable, setBackendUnreachable] = useState(false);
 
@@ -21,7 +22,7 @@ export function ChatPage() {
     setBackendUnreachable(false);
     try {
       const res = await api.listConversations();
-      setConversations(res.conversations);
+      setConversations(res.conversations ?? []);
     } catch (err) {
       const isNetworkError =
         err instanceof TypeError && err.message === 'Failed to fetch';
@@ -49,12 +50,16 @@ export function ChatPage() {
   }, [conversationId, conversations, isLoadingConversations, navigate]);
 
   const handleNewChat = async () => {
+    if (isCreatingConversation) return;
+    setIsCreatingConversation(true);
     try {
       const created = await api.createConversation();
       await fetchConversations();
       navigate(`/c/${created.id}`);
     } catch (err) {
       handleApiError(err);
+    } finally {
+      setIsCreatingConversation(false);
     }
   };
 
@@ -117,6 +122,7 @@ export function ChatPage() {
             conversations={conversations}
             activeConversationId={activeId}
             isLoading={isLoadingConversations}
+            isCreatingNew={isCreatingConversation}
             onNewChat={handleNewChat}
             onDelete={handleDeleteConversation}
             onSidebarClose={() => setSidebarOpen(false)}
@@ -134,9 +140,10 @@ export function ChatPage() {
               <button
                 type="button"
                 onClick={handleNewChat}
-                className="rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-blue-700"
+                disabled={isCreatingConversation}
+                className="rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Start a new chat
+                {isCreatingConversation ? 'Creating...' : 'Start a new chat'}
               </button>
             </div>
           ) : (

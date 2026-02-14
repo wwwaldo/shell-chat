@@ -1,5 +1,13 @@
+import { signOut } from 'firebase/auth';
 import toast from 'react-hot-toast';
+import { auth } from './firebase';
 import { ApiError } from './types';
+
+/** Sign out and redirect to login. Used on 401 so we don't bounce back (Firebase still has session). */
+async function signOutAndRedirect() {
+  await signOut(auth);
+  window.location.replace('/login');
+}
 
 /**
  * Handles API errors by showing appropriate toasts and/or triggering redirects.
@@ -11,16 +19,17 @@ import { ApiError } from './types';
 export function handleApiError(
   error: unknown,
   options?: {
-    on401?: () => void;
+    on401?: () => void | Promise<void>;
     on403?: () => void;
   }
 ): boolean {
-  const on401 = options?.on401 ?? (() => window.location.replace('/login'));
+  const on401 = options?.on401 ?? signOutAndRedirect;
   const on403 = options?.on403 ?? (() => window.location.replace('/'));
 
   if (error instanceof ApiError) {
     switch (error.code) {
       case 'invalid_token':
+        toast.error('Session expired. Please sign in again.');
         on401();
         return true;
       case 'forbidden':

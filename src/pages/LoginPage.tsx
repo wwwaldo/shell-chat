@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 
@@ -11,8 +11,16 @@ export function LoginPage() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const { signInWithEmail, signUpWithEmail, signInWithGoogle } = useAuth();
+  const { user, signInWithEmail, signUpWithEmail, signInWithGoogle } = useAuth();
   const navigate = useNavigate();
+
+  // Redirect when auth state propagates — avoids race where we navigate before
+  // onAuthStateChanged updates React state, which would make AuthGuard see null
+  useEffect(() => {
+    if (user) {
+      navigate('/', { replace: true });
+    }
+  }, [user, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -35,7 +43,7 @@ export function LoginPage() {
         }
         await signUpWithEmail(email, password);
       }
-      navigate('/');
+      // Don't navigate here — useEffect will redirect when user state updates
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Something went wrong');
     } finally {
@@ -48,7 +56,7 @@ export function LoginPage() {
     setLoading(true);
     try {
       await signInWithGoogle();
-      navigate('/');
+      // Don't navigate here — useEffect will redirect when user state updates
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Google sign-in failed');
     } finally {

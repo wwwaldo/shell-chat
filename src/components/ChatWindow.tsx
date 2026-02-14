@@ -17,7 +17,6 @@ export function ChatWindow({ conversationId, onMessageSent }: ChatWindowProps) {
   const [messages, setMessages] = useState<MessageType[]>([]);
   const [isLoadingMessages, setIsLoadingMessages] = useState(false);
   const [isSending, setIsSending] = useState(false);
-  const [apiKeySet, setApiKeySet] = useState<boolean | null>(null);
   const [notFound, setNotFound] = useState(false);
 
   useEffect(() => {
@@ -28,11 +27,6 @@ export function ChatWindow({ conversationId, onMessageSent }: ChatWindowProps) {
     }
     setNotFound(false);
     setIsLoadingMessages(true);
-    api
-      .getSettings()
-      .then((s) => setApiKeySet(s.anthropic_key_set))
-      .catch(() => setApiKeySet(false));
-
     api
       .getMessages(conversationId)
       .then((res) => {
@@ -101,20 +95,6 @@ export function ChatWindow({ conversationId, onMessageSent }: ChatWindowProps) {
     );
   }
 
-  if (apiKeySet === false) {
-    return (
-      <div className="flex flex-1 flex-col items-center justify-center gap-4 p-8 text-center">
-        <p className="text-gray-700">Configure your API key to send messages</p>
-        <Link
-          to="/settings"
-          className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
-        >
-          Open Settings
-        </Link>
-      </div>
-    );
-  }
-
   return (
     <div className="flex flex-1 flex-col overflow-hidden">
       <MessageList
@@ -122,7 +102,7 @@ export function ChatWindow({ conversationId, onMessageSent }: ChatWindowProps) {
         isLoading={isLoadingMessages}
         isSending={isSending}
       />
-      <ChatInput disabled={isSending || apiKeySet !== true} onSubmit={handleSend} />
+      <ChatInput disabled={isSending} onSubmit={handleSend} />
     </div>
   );
 }
